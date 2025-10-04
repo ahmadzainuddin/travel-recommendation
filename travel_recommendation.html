@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Travel recommendations to explore cultures, foods, and destinations around the world." />
+    <title>Travel Explorer — Recommendations</title>
+    <style>
+      :root {
+        --bg: #0b1020;
+        --bg-weak: #0f1730;
+        --text: #eaf0ff;
+        --muted: #b7c4ff;
+        --brand: #6ec1ff;
+        --brand-strong: #52a7ff;
+        --btn: #ffd166;
+        --btn-strong: #ffbf2a;
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html, body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        color: var(--text);
+        background: radial-gradient(1200px 600px at 10% -10%, #1a2a6c 0%, transparent 70%),
+                    radial-gradient(1000px 500px at 100% 10%, #1a2a6c 0%, transparent 60%),
+                    linear-gradient(180deg, var(--bg) 0%, var(--bg-weak) 100%);
+      }
+
+      a { color: inherit; text-decoration: none; }
+      input, button { font: inherit; }
+
+      /* Header / Nav */
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        backdrop-filter: saturate(140%) blur(6px);
+        background: rgba(10, 14, 32, 0.38);
+        border-bottom: 1px solid rgba(110, 193, 255, 0.15);
+      }
+
+      .nav {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: 0.5px;
+      }
+
+      .brand__logo {
+        width: 28px; height: 28px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--brand) 0%, #a3e4ff 100%);
+        display: inline-flex; align-items: center; justify-content: center;
+        color: #04233a;
+        box-shadow: var(--shadow);
+      }
+
+      .links {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .links a {
+        color: var(--muted);
+        padding: 6px 8px;
+        border-radius: 8px;
+      }
+
+      .links a:hover {
+        color: #fff;
+        background: rgba(82, 167, 255, 0.15);
+      }
+
+      .nav-tools { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+
+      .nav .search { width: min(520px, 48vw); padding: 6px; border-radius: 12px; }
+      .nav .search input[type="search"] { padding: 10px 12px; }
+      .nav .search button { padding: 10px 14px; }
+
+      /* Hero */
+      .hero {
+        position: relative;
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        text-align: left;
+        padding: 96px 20px 32px; /* leave room for fixed header */
+        isolation: isolate;
+      }
+
+      .hero__bg {
+        position: absolute;
+        inset: 0;
+        z-index: -2;
+        background-image: url('https://images.unsplash.com/photo-1503220317375-aaad61436b1b?q=80&w=1920&auto=format&fit=crop');
+        background-size: cover;
+        background-position: center;
+        filter: saturate(110%) contrast(105%);
+      }
+
+      .hero__overlay {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background: linear-gradient( to bottom, rgba(6, 10, 28, 0.35) 0%, rgba(6, 10, 28, 0.65) 40%, rgba(6, 10, 28, 0.8) 100% );
+      }
+
+      .hero__content {
+        width: 100%;
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        align-items: center;
+        gap: 28px;
+      }
+
+      .lead {
+        max-width: 680px;
+      }
+
+      /* Place hero items to stack results under the right card */
+      .hero__content .lead { grid-column: 1; grid-row: 1 / span 2; }
+      .hero__content .card { grid-column: 2; grid-row: 1; }
+      .hero__content .results-right { grid-column: 2; grid-row: 2; }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 6px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: #06233a;
+        background: linear-gradient(135deg, #a3e4ff 0%, var(--brand) 100%);
+        box-shadow: var(--shadow);
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(28px, 5vw, 52px);
+        line-height: 1.08;
+        letter-spacing: 0.2px;
+      }
+
+      .subhead {
+        margin: 0 0 24px;
+        color: var(--muted);
+        font-size: clamp(15px, 2vw, 18px);
+        max-width: 60ch;
+      }
+
+      /* Search bar */
+      .search {
+        display: flex;
+        align-items: center;
+        background: rgba(6, 18, 36, 0.55);
+        border: 1px solid rgba(110, 193, 255, 0.25);
+        border-radius: 14px;
+        padding: 8px;
+        box-shadow: var(--shadow);
+        gap: 8px;
+        width: min(680px, 100%);
+      }
+
+      .search input[type="search"] {
+        flex: 1;
+        padding: 12px 14px;
+        border: none;
+        outline: none;
+        border-radius: 10px;
+        color: #eaf4ff;
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      .search button {
+        padding: 12px 16px;
+        border: none;
+        border-radius: 10px;
+        background: var(--brand);
+        color: #04233a;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .search button:hover { background: var(--brand-strong); }
+
+      /* CTA */
+      .actions { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+
+      .btn-primary {
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        gap: 8px;
+        padding: 12px 18px;
+        border-radius: 12px;
+        background: var(--btn);
+        color: #422f00;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        box-shadow: var(--shadow);
+      }
+
+      .btn-primary:hover { background: var(--btn-strong); }
+
+      .disclaimer { color: #d8e8ffb0; font-size: 13px; }
+
+      /* Results */
+      .results-right { display: grid; gap: 12px; }
+      .results-right h3 { margin: 0; font-size: 18px; color: #cfe6ff; }
+      .list { display: grid; gap: 12px; }
+      .place {
+        background: rgba(9, 16, 36, 0.6);
+        border: 1px solid rgba(110, 193, 255, 0.2);
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
+      .place img { display: block; width: 100%; height: 140px; object-fit: cover; }
+      .place .info { padding: 12px; }
+      .place .title { margin: 0 0 6px; font-size: 16px; color: #eaf0ff; }
+      .place .desc { margin: 0; color: var(--muted); font-size: 14px; }
+      .place .time { margin: 6px 0 0; color: #aac4ff; font-size: 12px; }
+
+      /* Right column card */
+      .card {
+        background: rgba(9, 16, 36, 0.6);
+        border: 1px solid rgba(110, 193, 255, 0.2);
+        border-radius: 16px;
+        padding: 18px;
+        box-shadow: var(--shadow);
+      }
+
+      .card h3 { margin: 0 0 10px; font-size: 18px; color: #cfe6ff; }
+      .card p { margin: 0; color: var(--muted); font-size: 14px; }
+
+      /* Socials */
+      .socials {
+        position: absolute;
+        left: 20px;
+        bottom: 24px;
+        display: flex;
+        gap: 10px;
+      }
+      .socials a {
+        width: 40px; height: 40px;
+        display: inline-flex; align-items: center; justify-content: center;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #fff;
+        transition: transform 0.15s ease, background 0.15s ease;
+      }
+      .socials a:hover { transform: translateY(-2px); background: rgba(255,255,255,0.16); }
+
+      /* Footer */
+      footer {
+        padding: 32px 20px;
+        text-align: center;
+        color: #aac4ff;
+      }
+
+      /* Responsive */
+      @media (max-width: 900px) {
+        .hero__content { grid-template-columns: 1fr; gap: 18px; }
+        .lead { max-width: 100%; }
+        .socials { position: static; justify-content: center; margin-top: 18px; }
+        /* Reset grid placement for stacked layout */
+        .hero__content .lead,
+        .hero__content .card,
+        .hero__content .results-right { grid-column: auto; grid-row: auto; }
+      }
+      @media (max-width: 640px) { }
+    </style>
+  </head>
+  <body>
+    <!-- Header / Navigation -->
+    <header class="header" role="banner">
+      <nav class="nav" aria-label="Primary">
+        <a class="brand" href="travel_recommendation.html">
+          <span class="brand__logo" aria-hidden="true">✈︎</span>
+          <span>Travel Explorer</span>
+        </a>
+        <div class="links" role="navigation">
+          <a href="travel_recommendation.html">Home</a>
+          <a href="about.html">About Us</a>
+          <a href="contact.html">Contact Us</a>
+        </div>
+        <div class="nav-tools">
+          <form id="nav-search-form" class="search" role="search" aria-label="Search destinations" action="#" method="get">
+            <label for="searchInput" class="visually-hidden">Search</label>
+            <input id="searchInput" name="q" type="search" placeholder="Search: beaches, temples, countries…" list="nav-suggestions" autocomplete="off" />
+            <datalist id="nav-suggestions">
+              <option value="beach"></option>
+              <option value="temple"></option>
+              <option value="country"></option>
+              <option value="Japan"></option>
+              <option value="Australia"></option>
+              <option value="Brazil"></option>
+            </datalist>
+            <button id="searchBtn" type="submit">Search</button>
+            <button id="resetBtn" type="button">Reset</button>
+          </form>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Hero section -->
+    <section class="hero">
+      <div class="hero__bg" aria-hidden="true"></div>
+      <div class="hero__overlay" aria-hidden="true"></div>
+
+      <div class="hero__content">
+        <div class="lead">
+          <span class="eyebrow">Find Your Next Escape</span>
+          <h1>Explore the world. Discover unforgettable destinations.</h1>
+          <p class="subhead">
+            From bustling city streets to serene coastal hideaways, uncover
+            places rich with culture, cuisine, and stories. Start your journey
+            with hand‑picked recommendations tailored to how you like to travel.
+          </p>
+
+          <!-- Search moved to the navbar per requirements -->
+
+          <div class="actions">
+            <a class="btn-primary" href="#" aria-label="Book your next trip">Book Now</a>
+            <span class="disclaimer">No fees. Just pure exploration.</span>
+          </div>
+        </div>
+
+        <aside class="card" aria-label="Highlights">
+          <h3>Why Travel With Us</h3>
+          <p>
+            Curated guides, local insights, and seamless planning help you
+            experience cultures more deeply — not just see the sights.
+          </p>
+        </aside>
+        <!-- Recommendations appear here after search -->
+        <section id="results-right" class="results-right" aria-live="polite" aria-busy="false" hidden>
+          <h3>Recommendations</h3>
+          <div id="resultsList" class="list"></div>
+        </section>
+      </div>
+
+      <!-- Social links -->
+      <div class="socials" aria-label="Follow us">
+        <a href="#" aria-label="Instagram" title="Instagram">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5z" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="12" cy="12" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="#" aria-label="Facebook" title="Facebook">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M14.5 7H16V3h-2a4 4 0 0 0-4 4v2H7v4h3v8h4v-8h2.3l.7-4H14.5V7a1 1 0 0 1 1-1z" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="#" aria-label="X" title="X (Twitter)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M4 4l7.1 9.4L4.6 20h2.3l5.5-5.5 3.9 5.5H20l-7.2-9.9L19.3 4H17l-5 5-3.6-5H4z" fill="currentColor"/>
+          </svg>
+        </a>
+        <a href="#" aria-label="YouTube" title="YouTube">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <path d="M22 12s0-3-0.4-4.4c-0.2-0.8-0.8-1.4-1.6-1.6C18.6 5.4 12 5.4 12 5.4s-6.6 0-8 0.6c-0.8 0.2-1.4 0.8-1.6 1.6C2 9 2 12 2 12s0 3 0.4 4.4c0.2 0.8 0.8 1.4 1.6 1.6 1.4 0.6 8 0.6 8 0.6s6.6 0 8-0.6c0.8-0.2 1.4-0.8 1.6-1.6C22 15 22 12 22 12z" fill="currentColor"/>
+            <path d="M10 9.75v4.5l4-2.25-4-2.25z" fill="#0b1020"/>
+          </svg>
+        </a>
+      </div>
+    </section>
+
+    
+
+    <footer>
+      © <span id="year"></span> Travel Explorer. All rights reserved.
+    </footer>
+
+    <script>
+      // Accessible label visibility helper (no layout impact)
+      const style = document.createElement('style');
+      style.textContent = '.visually-hidden{position:absolute!important;clip:rect(1px,1px,1px,1px)!important;padding:0!important;border:0!important;height:1px!important;width:1px!important;overflow:hidden!important}';
+      document.head.appendChild(style);
+      // Year stamp
+      document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+    <script src="travel_recommendation.js" defer></script>
+  </body>
+  </html>
